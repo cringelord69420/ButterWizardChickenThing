@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Instakill
+  - GameOverScreenTag
+  - DoubleJump
+  - Butter
   layers:
   - Default
   - TransparentFX
