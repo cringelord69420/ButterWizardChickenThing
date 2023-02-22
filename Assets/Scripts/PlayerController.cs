@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D playerRB;
     public float jumpForce = 400;
     public bool isOnGround;
+    public GameObject gmScreen;
+    //visible is the game over texture(which is always following the player), and invisible is a nothing texture
+    public Sprite visible, invisible;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,7 +20,9 @@ public class PlayerController : MonoBehaviour
         gameOver = false;
         //instantiates the rigidbody component of the player for use in code
         playerRB = GetComponent<Rigidbody2D>();
-
+        //tells everything what the game over screen is
+        gmScreen = GameObject.FindWithTag("GameOverScreenTag");
+        gmScreen.GetComponent<SpriteRenderer>().sprite = invisible;
     }
 
     // Update is called once per frame
@@ -43,6 +48,11 @@ public class PlayerController : MonoBehaviour
         {
             isOnGround = true;
 
+        }
+        if (collision.gameObject.CompareTag("Instakill"))
+        {
+            gameOver = true;
+            gmScreen.GetComponent<SpriteRenderer>().sprite = visible;
         }
     }
 }
