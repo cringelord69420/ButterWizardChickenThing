@@ -6,9 +6,10 @@ TagManager:
   tags:
   - Ground
   - Instakill
-  - GameOverScreenTag
   - DoubleJump
-  - Butter
+  - Buttery
+  - GameOverScreenTag
+  - PowerupRemover
   layers:
   - Default
   - TransparentFX
