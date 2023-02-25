@@ -6,16 +6,18 @@ public class PlayerController : MonoBehaviour
 {   
     public GameObject gmScreen;
     
-    public float worldTime = 1; //MULTIPLY THIS WITH TIMEDELTATIME ALWAYS
-    public float jumpForce = 400;
-    public float speed = 2f;
-    public float gravForce = -100;
+    private float worldTime = 1; //MULTIPLY THIS WITH TIMEDELTATIME ALWAYS
+    private float jumpForce = 400f;
+    private float speed = 10f;
+    private float currentAcceleration = 1.5f;
+    private float gravForce = -15f;
 
     public Rigidbody2D playerRB;
     
     public bool gameOver;
     public bool isOnGround;
     public bool doubleJump;
+    public bool buttery;
     public bool canJump;
     public bool increasedGravity;
     
@@ -35,6 +37,7 @@ public class PlayerController : MonoBehaviour
         doubleJump = false;
 
         canJump = false;
+        worldTime = 0;
     }
 
     // Update is called once per frame
@@ -44,17 +47,31 @@ public class PlayerController : MonoBehaviour
         //if the game isnt over, it checks for player input/moves the player
         if (!gameOver)
         {
-            if (increasedGravity)
+            if (buttery)
             {
-            gravForce += 0.1f;
-            playerRB.AddForce(transform.up * gravForce * worldTime);
-            if (gravForce > -2.5f)
+
+                if (Input.GetKey("d"))
                 {
-                    gravForce = -2.5f;
+
+                    playerRB.AddForce(transform.right * (currentAcceleration * worldTime));
+
+                    //waits for a sec before accelerating, this is to prevent acceleration from scaling with framerate
+                    Invoke("IncreaseAcceleration", 0.1f);
+                }
+                if (Input.GetKey("a"))
+                {
+
+                    playerRB.AddForce(transform.right * -(currentAcceleration * worldTime));
+
+                    //waits for a sec before accelerating, this is to prevent acceleration from scaling with framerate
+                    Invoke("IncreaseAcceleration", 0.1f);
                 }
             }
+            
+            //Basic movement
+
             //timedeltatime is multiplied with worldtime first because if its not, getaxishorizontal will be reversed if it happens to be negative
-            transform.Translate(Vector3.right * speed * (Time.deltaTime * worldTime) * Input.GetAxis("Horizontal"));
+            transform.Translate(Vector3.right * speed * ((Time.deltaTime % 10) * worldTime) * Input.GetAxis("Horizontal"));
             if (Input.GetKeyDown("space"))
             {
                 //seperated the if statements for preformance reasons
@@ -65,12 +82,15 @@ public class PlayerController : MonoBehaviour
                 increasedGravity = false;
                 Invoke("WaitASecond", 0.3f);
 
+
                 }
                 if (doubleJump && canJump)
                 {
                 playerRB.AddForce(transform.up * (jumpForce * 1.5f) * worldTime);
                 canJump = false;
                 Invoke("IncreasedGravity", 0.4f);
+                
+
                 }
                 
             }
@@ -85,6 +105,7 @@ public class PlayerController : MonoBehaviour
             isOnGround = true;
             canJump = false;
             
+
         }
         //if the object is an instakill
         if (collision.gameObject.CompareTag("Instakill"))
@@ -100,8 +121,25 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("DoubleJump"))//if they touch a double jump powerup
         {
             doubleJump = true;
+            speed = 10;
+            buttery = false;
             //destroys the object with the tag double jump
             Destroy(collision.gameObject);
+        }
+        if (collision.gameObject.CompareTag("Buttery"))//if they touch a double jump powerup
+        {
+            buttery = true;
+            doubleJump = false;
+            //destroys the object with the tag double jump
+            Destroy(collision.gameObject);
+            speed = 0;
+        }
+        if (collision.gameObject.CompareTag("PowerupRemover"))
+        {
+            buttery = false;
+            doubleJump = false;
+            Destroy(collision.gameObject);
+            speed = 10;
         }
     }
     void WaitASecond()
@@ -109,9 +147,37 @@ public class PlayerController : MonoBehaviour
         canJump = true;
     }
 
-    void IncreasedGravity()
+    IEnumerator IncreasedGravity()
     {
         increasedGravity = true;
+        if (increasedGravity)
+            {
+            gravForce += 0.1f;
+            playerRB.AddForce(transform.up * gravForce * worldTime);
+            if (gravForce > -2.5f)
+                {
+                    gravForce = -2.5f;
+                }
+            }
 
     }
+    IEnumerator IncreaseFallSpeed()
+    {
+        yield return new WaitForSeconds(0.1f);
+        
+    }
+    IEnumerator IncreaseAcceleration()
+    {   
+        yield return new WaitForSeconds(0.1f);
+        currentAcceleration = currentAcceleration * 2f;
+        if (currentAcceleration > 1000)
+        {
+            currentAcceleration = 998;
+        }
+    }
+    IEnumerator RealTimeUpdate()
+    {  
+        yield return StartCoroutine("RealTimeUpdate");
+    }
+    
 }

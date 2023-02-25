@@ -6,7 +6,7 @@ public class FireMoveForward : MonoBehaviour
 {
 
     public GameObject fireTrigger;
-    public float wallSpeed = 10f;
+    private float wallSpeed = 4f;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,7 +18,6 @@ public class FireMoveForward : MonoBehaviour
     {
         if (fireTrigger.GetComponent<SummonFireWall>().triggered)
         {
-            Debug.Log("IM TRIGGERED");
             transform.Translate(Vector3.right * wallSpeed * Time.deltaTime);
         }
     }
